@@ -10,8 +10,6 @@ Software package: Fiji (ImageJ)
 Workflow language: ImageJ macro
 
 
-Scale 
-
 ## ScaleAndCropImages
   
 Overview
