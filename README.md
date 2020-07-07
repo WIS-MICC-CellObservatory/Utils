@@ -2,8 +2,9 @@
 
 ## Content
 
-ScaleAndCropImages: Utility program to help handling of multiple EM images for analysis
-ExportImagesFromComplexMicroscopyFiles: Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
+*ScaleAndCropImages*: Utility program to help handling of multiple EM images for analysis
+
+*ExportImagesFromComplexMicroscopyFiles*: Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
 
 Written by: Ofra Golani at MICC Cell Observatory, Weizmann Institute of Science
 Software package: Fiji (ImageJ)
