@@ -13,7 +13,7 @@ Workflow language: ImageJ macro
 ## ScaleAndCropImages
   
 Overview
---------
+========
   
 Utility program to help handling of multiple EM images for analysis
 Go over all images (see details below), for each image:
@@ -22,7 +22,7 @@ Go over all images (see details below), for each image:
 - prompt the user to select region-of-interest to keep , usually you will select the whole area without the scalebar and the rest of the EM microscope information 
   
 Control Options
----------------
+===============
 - ResultsLocation:  Two options for saving results: 
 - UnderOrigFolder: save under InputFolder/Scaled  OR
 - InNewLocation:   resScaledFolder/FolderName 
@@ -40,14 +40,14 @@ The following strategies are employed to allow *fast* scaling and cropping:
 ## ExportImagesFromComplexMicroscopyFiles
 
 Overview
---------
+========
 Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
  
 Input:  Single complex file namedeg XX.lif  or folder of complex files 
 Output: for each lif file: Subfolder named XX_Tif with the individual series saved as tif files
  
 Control Options
----------------
+===============
 - Controled by a dialog box
 - Export all Images / Export Last series / Export the N series / Export only images that match criteria on size/number of channels
 - Match Criteria: 
@@ -60,6 +60,6 @@ Control Options
   this option usefull especially for working with files stored on network disks such as BioImg storage server (for WIS users)
  
 Reference
----------
+=========
 Based on Bio-Formats plugin, Bio-Formats Macro Extensions (called from Plugins menu of Fiji) and 
 code examples from https://docs.openmicroscopy.org/bio-formats/5.8.0/users/imagej/  
