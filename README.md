@@ -6,6 +6,8 @@
 
 *ExportImagesFromComplexMicroscopyFiles*: Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
 
+
+
 Written by: Ofra Golani at MICC Cell Observatory, Weizmann Institute of Science
 Software package: Fiji (ImageJ)
 Workflow language: ImageJ macro
