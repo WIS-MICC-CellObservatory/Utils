@@ -24,7 +24,9 @@ Go over all images (see details below), for each image:
 - prompt the user to select region-of-interest to keep , usually you will select the whole area without the scalebar and the rest of the EM microscope information 
   
 ### Control Options
-
+<p align="right">
+<img src="https://github.com/WIS-MICC-CellObservatory/Utils/ScaleAndCropImages_GUI.png" width="250" title="ScaleAndCropImages_GUI">
+	</p>
 - ResultsLocation:  Two options for saving results: 
 - UnderOrigFolder: save under InputFolder/Scaled  OR
 - InNewLocation:   resScaledFolder/FolderName 
