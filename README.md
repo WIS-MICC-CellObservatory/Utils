@@ -29,6 +29,7 @@ Go over all images (see details below), for each image:
 - ResultsLocation:  Two options for saving results: 
 - UnderOrigFolder: save under InputFolder/Scaled  OR
 - InNewLocation:   resScaledFolder/FolderName 
+- OutputFileType: allow saving cropped file into either tif orilastik hdf5 format (for further training ilastik classifier suitable for running from Fiji)
  
 The following strategies are employed to allow *fast* scaling and cropping: 
 - let you process single image OR whole folder of images OR all images in all subfolders of a selected folder
