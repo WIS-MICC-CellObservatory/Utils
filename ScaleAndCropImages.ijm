@@ -7,6 +7,7 @@
 // @boolean UseScaleBarFromPrevImage
 // @int DefaultKnownDist
 // @string ScaleUnit 
+// @string(choices=("tif", "ilastik hdf5"), style="list") OutputFileType
 
 /* ScaleAndCropImages
  *  
@@ -24,6 +25,7 @@
  *  ResultsLocation:  Two options for saving results: 
  *  - UnderOrigFolder: save under InputFolder/Scaled  OR
  *  - InNewLocation:   resScaledFolder/FolderName 
+ *  - OutputFileType: allow saving cropped file into either tif orilastik hdf5 format (for further training ilastik classifier suitable for running from Fiji)
  *  
  *  The following strategies are employed to allow fast scaling and cropping: 
  *  - let you process single image OR whole folder of images OR all images in all subfolders of a selected folder
@@ -63,7 +65,10 @@ var y;
 var width;
 var height;
 
-var macroVersion = "1.1"; 	
+var SaveFormat = OutputFileType;
+var croppedOutExt = ".tif";
+ 
+var macroVersion = "1.2"; 	
 
 //============================================================================================
 //------ Main Workflow --------------------------------
@@ -189,7 +194,12 @@ function ProcessFile(full_name, directory, resScaledFolder, resCroppedFolder)
 	file_name_no_ext = replace(file_name, fileExtension, "");
 	scaledName = resScaledFolder + File.separator + file_name;
 	croppedRoi = resScaledFolder + File.separator + file_name_no_ext + ".roi";
-	croppedName = resCroppedFolder + File.separator + file_name;
+
+	if (matches(SaveFormat, "ilastik hdf5"))
+		croppedOutExt = ".h5";
+	else if (matches(SaveFormat, "tif"))
+		croppedOutExt = ".tif";
+	croppedName = resCroppedFolder + File.separator + file_name_no_ext + croppedOutExt;
 
 	needScaleFile   = SkipExistingScaledImage==0  || File.exists(scaledName)==0  ;
 	needCroppedFile = SkipExistingCroppedImage==0 || File.exists(croppedName)==0 ;
@@ -291,8 +301,13 @@ function GetCroppedFile(full_name, directory, croppedRoi, croppedName)
 		}
 		
 		run("Duplicate...", "title=Cropped");
+		ImToSave = getTitle();
 		setTool("hand");		
-		saveAs("Tiff", croppedName);
+
+		if (matches(SaveFormat, "ilastik hdf5"))
+			run("Export HDF5", "select=["+croppedName+"] exportpath=["+croppedName+"] datasetname=data compressionlevel=0 input=["+ImToSave+"]");
+		else if (matches(SaveFormat, "tif"))
+			saveAs("Tiff", croppedName);
 	}
 	rename("Cropped");	
 }
@@ -308,7 +323,8 @@ function ProcessFiles(directory, resScaledFolder, resCroppedFolder)
 	// Loop over files
 	for (fileIndex = 0; fileIndex < lengthOf(fileListArray); fileIndex++) {
 		// Check for file pattern
-		if ((endsWith(fileListArray[fileIndex], fileExtension)) && (indexOf(fileListArray[fileIndex], FileNamePattern)>0)) {
+		print(fileListArray[fileIndex], endsWith(fileListArray[fileIndex], fileExtension), indexOf(fileListArray[fileIndex], FileNamePattern));
+		if ((endsWith(fileListArray[fileIndex], fileExtension)) && (indexOf(fileListArray[fileIndex], FileNamePattern)>-1)) {
 			full_name = directory+fileListArray[fileIndex];
 			
 			print("processing:",fileListArray[fileIndex]);
