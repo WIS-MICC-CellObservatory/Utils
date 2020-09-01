@@ -1,5 +1,5 @@
 /*
- * Export Series From Complex Microscopy file (lif, czi, nd2) to Tiff Files
+ * Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
  * 
  * Input:  Single complex file namedeg XX.lif  or folder of complex files 
  * Output: for each lif file: Subfolder named XX_Tif with the individual series saved as tif files
@@ -265,6 +265,8 @@ function ProcessFile(full_name, directory, resFolder)
 					SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, outExt);
 				}
 		  	}
+	  		if (CleanupFlag) Cleanup();
+	  		print(IJ.freeMemory());
 		} // end of for s...
 		if (matches(ProcType, "Stitch"))
 		{
