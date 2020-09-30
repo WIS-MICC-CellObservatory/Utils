@@ -50,7 +50,7 @@ The following strategies are employed to allow *fast* scaling and cropping:
 
 Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
  
-Input:  Single complex file namedeg XX.lif  or folder of complex files 
+Input:  Single complex file named eg XX.lif  or folder of complex files 
 Output: for each lif file: Subfolder named XX_Tif with the individual series saved as tif files
  
 ### Control Options
