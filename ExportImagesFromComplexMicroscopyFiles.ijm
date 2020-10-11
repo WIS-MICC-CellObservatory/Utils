@@ -54,6 +54,7 @@ var ResultsLocation = "UnderOrigFolder"; // "UnderOrigFolder", "InNewLocation"
 
 var debugMode = 0; // for testing new features eg Stitch
 
+var UseOrigNameAsPrefixFlag = 1; // 0 or 1, use 1 to work in quiet mode
 var BatchModeFlag = 1; // 0 or 1, use 1 to work in quiet mode
 
 // ======  End of Parameters Setting, =====================================================
@@ -280,7 +281,7 @@ function ProcessFile(full_name, directory, resFolder)
 //============================================================================================
 // Save single open Series after applying Proc if needed
 //============================================================================================
-function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, Name, outExt)
+function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, outExt)
 {
 
 	suffixStr = "";
@@ -296,12 +297,29 @@ function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, Name, outE
 		waitForUser("Record Stitch...");
 	}
 
-	outName = outFolder + file_name_no_ext + "_" + IJ.pad(sNum,SeriesNumPad) + "_" + sName + suffixStr + outExt;
+	Name = replace(sName, " ", "_");
+	Name = replace(Name, "\\/" , "_");
+	Name = replace(Name, "\\" , "_");
+	if (UseOrigNameAsPrefixFlag)
+		outName = outFolder + file_name_no_ext + "_" + IJ.pad(sNum,SeriesNumPad) + "_" + Name + suffixStr + outExt;
+	else 
+		outName = outFolder + Name + suffixStr + outExt;
+
+	/*print("outFolder = ", outFolder);
+	print("file_name_no_ext = ", file_name_no_ext);
+	print("sNum string = ", "_" + IJ.pad(sNum,SeriesNumPad) + "_");
+	print("Name = ", Name);
+	print("suffixStr = ", suffixStr);
+	print("outExt = ", outExt);
+	print("outName = ", outName);*/
 	if (matches(SaveFormat, "ilastik hdf5"))
 	{
 		run("Export HDF5", "select=["+outName+"] exportpath=["+outName+"] datasetname=data compressionlevel=0 input=["+ImToSave+"]");
 	} else if (matches(SaveFormat, "tif"))
+	{
+		print("Saving file into: ", outName);
 		saveAs("tiff", outName);
+	}
 }
 
 //============================================================================================
@@ -378,6 +396,8 @@ function GetPrmsDialog()
 	Dialog.addCheckbox("Export only Series whose name contain the Text: ", UseImageNameCriteria);
 	Dialog.addToSameRow(); 
 	Dialog.addString("_", CriteriaImageNameText, 12);
+
+	Dialog.addCheckbox("Add original file name as Prefix ?", UseOrigNameAsPrefixFlag);
 	Dialog.addCheckbox("Work in Batch Mode ?", BatchModeFlag);
 
 	Dialog.show();
@@ -406,6 +426,7 @@ function GetPrmsDialog()
 
 	UseImageNameCriteria = Dialog.getCheckbox();
 	CriteriaImageNameText = Dialog.getString();
+	UseOrigNameAsPrefixFlag = Dialog.getCheckbox();
 	BatchModeFlag = Dialog.getCheckbox();
 }
 
