@@ -65,6 +65,7 @@ Output: for each lif file: Subfolder named XX_Tif with the individual series sav
 - Output type: Tif / hdf5 / ilastik hdf5 
 - Location of output files: UnderOrigFolder / InNewLocation 
   this option usefull especially for working with files stored on network disks such as BioImg storage server (for WIS users)
+- Exported image files are named either by their original image names (ImName) or FileName_SeriesNum_ImName 
 
 <p align="left">
 <img src="https://github.com/ofrag/Utils/blob/master/ExportImagesFromComplexMicroscopyFiles_GUI.PNG" width="500" title="ScaleAndCropImages_GUI">
