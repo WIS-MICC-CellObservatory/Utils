@@ -2,9 +2,9 @@
 
 ## Content
 
-*ScaleAndCropImages*: Utility program to help scaling, cropping and saving multiple EM images in preparation for further analysis
+*ScaleAndCropImages*: Utility program to help scaling, cropping and saving (as tiff or hdf5) multiple EM images in preparation for further analysis
 
-*ExportImagesFromComplexMicroscopyFiles*: Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
+*ExportImagesFromComplexMicroscopyFiles*: Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff or hdf5 Files
 
 *RunIlastikHeadless.bat*: Windows bat file for running Ilastik Pixel Classifier followed by Ilastik boundary based segmentation on all files in a given folder.
 
