@@ -1,4 +1,4 @@
-# Utilities ImageJ Macros by MICC Cell Observatory team
+# Utilities ImageJ Macros and other scripts by MICC Cell Observatory team
 
 ## Content
 
