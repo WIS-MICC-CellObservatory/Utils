@@ -2,13 +2,14 @@
 
 ## Content
 
-*ScaleAndCropImages*: Utility program to help handling of multiple EM images for analysis
+*ScaleAndCropImages*: Utility program to help scaling, cropping and saving multiple EM images in preparation for further analysis
 
 *ExportImagesFromComplexMicroscopyFiles*: Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
 
+*RunIlastikHeadless.bat*: Windows bat file for running Ilastik Pixel Classifier followed by Ilastik boundary based segmentation on all files in a given folder.
 
 <br/> <br/>
-Written by: Ofra Golani at MICC Cell Observatory, Weizmann Institute of Science
+Written by: Ofra Golani at the MICC Cell Observatory, Weizmann Institute of Science
 
 Software package: Fiji (ImageJ)
 
@@ -19,17 +20,17 @@ Workflow language: ImageJ macro
   
 ### Overview
   
-Utility program to help handling of multiple EM images for analysis
+Utility program to help scaling, cropping and saving multiple EM images in preparation for further analysis
 Go over all images (see details below), for each image:
 - Open the image
-- prompt the user to drwa a line along the scalebar
+- prompt the user to draw a line along the scalebar
 - prompt the user to select region-of-interest to keep , usually you will select the whole area without the scalebar and the rest of the EM microscope information 
   
 ### Control Options
 - ResultsLocation:  Two options for saving results: 
 - UnderOrigFolder: save under InputFolder/Scaled  OR
 - InNewLocation:   resScaledFolder/FolderName 
-- OutputFileType: allow saving cropped file into either tif orilastik hdf5 format (for further training ilastik classifier suitable for running from Fiji)
+- OutputFileType: allow saving cropped file into either tif or ilastik hdf5 format (for further training ilastik classifier suitable for running from Fiji)
  
 The following strategies are employed to allow *fast* scaling and cropping: 
 - let you process single image OR whole folder of images OR all images in all subfolders of a selected folder
