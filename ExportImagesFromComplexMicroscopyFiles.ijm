@@ -24,7 +24,7 @@
 
 // ======  Parameters Settings , can be tuned by the user ================================
 
-var macroVersion = 2;
+var macroVersion = 3;
 var UseDialogGUI = 1; // 0 or 1
 var processMode = "SingleFile"; 	// "SingleFile" or "WholeFolder" or "AllSubFolders"
 
@@ -49,12 +49,14 @@ var UseImageNameCriteria = 0;
 var CriteriaImageNameText = "Merged";
 var SeriesNumPad = 3;
 
-var ProcType = "None"; // "None", "MaxProject", "Stitch"
+var ProcType = "None"; // "None", "MaxProject", "ExtractSingleChannel", "Stitch"
+var ChannelToExtract = 1;
 var ResultsLocation = "UnderOrigFolder"; // "UnderOrigFolder", "InNewLocation"
 
 var debugMode = 0; // for testing new features eg Stitch
 
-var UseOrigNameAsPrefixFlag = 1; // 0 or 1, use 1 to work in quiet mode
+var UseOrigNameAsPrefixFlag = 0; // 0 or 1, use 1 to work in quiet mode
+var SaveIntoPerFileSubFoldersFlag = 1; // 0 - save all images into single folder , =1 save images from each file into one folder 
 var BatchModeFlag = 1; // 0 or 1, use 1 to work in quiet mode
 
 // ======  End of Parameters Setting, =====================================================
@@ -169,7 +171,12 @@ function ProcessFile(full_name, directory, resFolder)
 		outExt = ".h5";
 	else if (matches(SaveFormat, "tif"))
 		outExt = ".tif";
-	
+	else if (matches(SaveFormat, "jpg"))
+		outExt = ".jpg";
+	else if (matches(SaveFormat, "png"))
+		outExt = ".png";
+
+
 	// Create Out Folder
 	file_name = File.getName(full_name);
 	file_name_no_ext = replace(file_name, "."+fileExtension, "");
@@ -177,13 +184,23 @@ function ProcessFile(full_name, directory, resFolder)
 		outFolderExt = "_h5";
 	else if (matches(SaveFormat, "tif"))
 		outFolderExt = "_Tif";
+	else if (matches(SaveFormat, "jpg"))
+		outFolderExt = "_Jpg";
+	else if (matches(SaveFormat, "png"))
+		outFolderExt = "_Png";
 	else	
 		outFolderExt = "";
-	outFolder = resFolder + file_name_no_ext +outFolderExt + File.separator;
+	if (SaveIntoPerFileSubFoldersFlag)
+		outFolder = resFolder + file_name_no_ext +outFolderExt + File.separator;
+	else {
+		folderName = File.getNameWithoutExtension(resFolder);
+		outFolder = resFolder + folderName +outFolderExt + File.separator;
+	}
 	File.makeDirectory(outFolder);
 
 	Ext.setId(full_name);
 	Ext.getSeriesCount(seriesCount);
+	//waitForUser("seriesCount="+seriesCount);
 
 	print(file_name_no_ext, " nSeries=", seriesCount);
 	
@@ -209,9 +226,12 @@ function ProcessFile(full_name, directory, resFolder)
 	} else 
 	{	
 		n = 0;
+		//print("seriesCount="+seriesCount+" CriteriaSeriesNumberMax="+CriteriaSeriesNumberMax);
 		for (s=0; s<seriesCount; s++) 
 		{
 	  		sNum = s+1;
+	  		if (UseSeriesNumberCriteria && sNum > CriteriaSeriesNumberMax)
+	  			break;
 			Ext.setSeries(s);
 			Ext.getSizeX(sizeX);
 			Ext.getSizeY(sizeY);
@@ -227,26 +247,42 @@ function ProcessFile(full_name, directory, resFolder)
 			//Ext.getPlanePositionX(positionY, 0);
 
 			if (matches(SaveFormat, "None-OnlyPrintInfo"))
-				readFlag = 0;
+	  	  	{
+	  	  		readFlag = 0;
+	  	  		//print("1");
+	  	  	}
 			else 
 			{
 			  	readFlag = 1;
 		  	  	if (UseSeriesNumberCriteria && ((sNum < CriteriaSeriesNumberMin) || (sNum > CriteriaSeriesNumberMax)) )
+		  	  	{
 		  	  		readFlag = 0;
+		  	  		//print("2");
+		  	  	}
 		  		if (UseChannelNumberCriteria && ((sizeC < CriteriaChannelNumberMin) || (sizeC > CriteriaChannelNumberMax)) )
-					readFlag = 0;
+		  	  	{
+		  	  		readFlag = 0;
+		  	  		//print("3");
+		  	  	}
 				if (UseImageSizeCriteria && ( (sizeX != CriteriaImageSizeX) || (sizeY != CriteriaImageSizeY) || (sizeZ != CriteriaImageSizeZ)) )
-		  			readFlag = 0;
+		  	  	{
+		  	  		readFlag = 0;
+		  	  		//print("4");
+		  	  	}
 				if (UseImageNameCriteria) {
 					TextRegExp = ".*"+CriteriaImageNameText+".*";
 					if (!matches(sName, TextRegExp))	  	
-						readFlag = 0;
+			  	  	{
+			  	  		readFlag = 0;
+			  	  		//print("5");
+			  	  	}
 				}
 			}
 			print(s, "Series #" + sNum + ": name is "+ sName+" size is " + sizeX + "x" + sizeY + "x" + sizeZ + "x" + sizeC + "x" + sizeT + " readFlag=" + readFlag);			
 
 		  	if (readFlag)
 		  	{
+		  		//waitForUser("Open Series #"+sNum);
 				run("Bio-Formats Importer", "open=["+full_name+"] autoscale color_mode=Default view=Hyperstack stack_order=XYCZT series_list="+d2s(sNum,0)); 			
 				ImToSave = getTitle();
 				
@@ -284,6 +320,7 @@ function ProcessFile(full_name, directory, resFolder)
 function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, outExt)
 {
 
+	print(file_name_no_ext, sNum, sName);
 	suffixStr = "";
 	if (matches(ProcType, "MaxProject"))
 	{
@@ -291,6 +328,13 @@ function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, out
 		run("Z Project...", "projection=[Max Intensity]");		
 		ImToSave = getTitle();
 		suffixStr = "_MaxProject";
+	}
+	if (matches(ProcType, "ExtractSingleChannel"))
+	{
+		//run("Make Composite");
+		run("Duplicate...", "duplicate channels="+ChannelToExtract);
+		ImToSave = getTitle();
+		suffixStr = "_Ch"+d2s(ChannelToExtract, 0);;
 	}
 	if (matches(ProcType, "Stitch"))
 	{
@@ -300,6 +344,7 @@ function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, out
 	Name = replace(sName, " ", "_");
 	Name = replace(Name, "\\/" , "_");
 	Name = replace(Name, "\\" , "_");
+	Name = replace(Name, "."+fileExtension, "");
 	if (UseOrigNameAsPrefixFlag)
 		outName = outFolder + file_name_no_ext + "_" + IJ.pad(sNum,SeriesNumPad) + "_" + Name + suffixStr + outExt;
 	else 
@@ -319,6 +364,14 @@ function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, out
 	{
 		print("Saving file into: ", outName);
 		saveAs("tiff", outName);
+	} else if (matches(SaveFormat, "jpg"))
+	{
+		print("Saving file into: ", outName);
+		saveAs("jpeg", outName);
+	} else if (matches(SaveFormat, "png"))
+	{
+		print("Saving file into: ", outName);
+		saveAs("PNG", outName);
 	}
 }
 
@@ -355,11 +408,12 @@ function GetPrmsDialog()
 	ProcModeOptList = newArray("SingleFile","WholeFolder","AllSubFolders");
 	ExportCriteriaOptList = newArray("All", "First", "Last");
 	if (debugMode == 1)
-		ProcTypeOptList = newArray("None", "MaxProject", "Stitch");
+		ProcTypeOptList = newArray("None", "MaxProject", "ExtractSingleChannel", "Stitch");
 	else 
-		ProcTypeOptList = newArray("None", "MaxProject"); // "Stitch" is not fully checked yet
+		ProcTypeOptList = newArray("None", "MaxProject", "ExtractSingleChannel"); // "Stitch" is not fully checked yet
 	ResultsLocationOptList = newArray("UnderOrigFolder", "InNewLocation");
-	SaveFormatOptList = newArray("tif", "ilastik hdf5", "None-OnlyPrintInfo");
+	//SaveFormatOptList = newArray("tif", "ilastik hdf5", "None-OnlyPrintInfo");
+	SaveFormatOptList = newArray("tif", "ilastik hdf5", "jpg", "png", "None-OnlyPrintInfo");
 	Question = newArray("Yes","No");
 	
 	// Choose image channels and threshold value
@@ -370,6 +424,8 @@ function GetPrmsDialog()
 	Dialog.addChoice("Save Format", SaveFormatOptList, SaveFormat);
 	
 	Dialog.addChoice("Process Type:  ", ProcTypeOptList, ProcType);
+	Dialog.addToSameRow(); 
+	Dialog.addNumber("Channel To Extract (if relevant): ", ChannelToExtract, 0, 5, "");
 
 	Dialog.addChoice("Which Images to Export:  ", ExportCriteriaOptList, ExportImages);
 
@@ -398,6 +454,7 @@ function GetPrmsDialog()
 	Dialog.addString("_", CriteriaImageNameText, 12);
 
 	Dialog.addCheckbox("Add original file name as Prefix ?", UseOrigNameAsPrefixFlag);
+	Dialog.addCheckbox("Export into different subfolders for each file?", SaveIntoPerFileSubFoldersFlag);
 	Dialog.addCheckbox("Work in Batch Mode ?", BatchModeFlag);
 
 	Dialog.show();
@@ -408,7 +465,7 @@ function GetPrmsDialog()
 	ResultsLocation = Dialog.getChoice();
 	SaveFormat = Dialog.getChoice();
 	ProcType = Dialog.getChoice();
-
+	ChannelToExtract = Dialog.getNumber();
 	ExportImages = Dialog.getChoice();
 
 	UseSeriesNumberCriteria = Dialog.getCheckbox();
@@ -427,6 +484,7 @@ function GetPrmsDialog()
 	UseImageNameCriteria = Dialog.getCheckbox();
 	CriteriaImageNameText = Dialog.getString();
 	UseOrigNameAsPrefixFlag = Dialog.getCheckbox();
+	SaveIntoPerFileSubFoldersFlag = Dialog.getCheckbox();
 	BatchModeFlag = Dialog.getCheckbox();
 }
 
@@ -443,6 +501,7 @@ function ShowAndSavePrms(SaveFlag, OutFileName)
 	print("fileExtension=", fileExtension);
 	print("ResultsLocation=",ResultsLocation);
 	print("ProcType=",ProcType);
+	print("ChannelToExtract=",ChannelToExtract);
 	print("ExportImages=", ExportImages);
 
 	print("UseSeriesNumberCriteria=",UseSeriesNumberCriteria);
