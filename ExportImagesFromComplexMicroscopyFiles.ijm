@@ -1,5 +1,5 @@
 /*
- * Export individual images From Complex Microscopy file (lif, czi, nd2) to Tiff Files
+ * Export individual images From Complex Microscopy file (lif, czi, nd2, ims) to Tiff Files
  * 
  * Input:  Single complex file namedeg XX.lif  or folder of complex files 
  * Output: for each lif file: Subfolder named XX_Tif with the individual series saved as tif files
@@ -11,8 +11,9 @@
  * 		- number of channels 
  * 		- image size
  * 		- image name include specified Text 
- * 	- Processing Type: None/MaxProject/Stitching (not implemented)
- * 	- Output type: Tif / hdf5 / ilastik hdf5 
+ * 	- Processing Type: None/MaxProject/Extract Single Channel (Stitching - not implemented)
+ * 	- Output type: Tif / hdf5 / ilastik hdf5 /jpg / png 
+ * 	- Make Composite
  * 	- Location of output files: UnderOrigFolder / InNewLocation 
  * 	  this option usefull especially for working with files stored on network disks such as BioImg storage server (for WIS users)
  * 
@@ -20,22 +21,27 @@
  * ===========
  * Based on Bio-Formats plugin, Bio-Formats Macro Extensions (called from Plugins menu of Fiji) and 
  * code examples from https://docs.openmicroscopy.org/bio-formats/5.8.0/users/imagej/  
+ * 
+ * Update Log:
+ * v4: 
+ * - add MakeCompositeFlag 
  */
 
 // ======  Parameters Settings , can be tuned by the user ================================
 
-var macroVersion = 3;
+var macroVersion = 4;
 var UseDialogGUI = 1; // 0 or 1
 var processMode = "SingleFile"; 	// "SingleFile" or "WholeFolder" or "AllSubFolders"
 
-var fileExtension = "lif";
-var SaveFormat = "tif";
+var fileExtension = "lif"; //"ims"; //"lif";
+var SaveFormat = "tif"; //"jpg"; //"tif";
 
 var ExportImages = "All"; // "All", "Last", "First" "None-PrintOnly"
 var UseSeriesNumberCriteria = 0;
-var CriteriaSeriesNumberMin = 2;
-var CriteriaSeriesNumberMax = 2;
+var CriteriaSeriesNumberMin = 1;
+var CriteriaSeriesNumberMax = 1;
 
+var MakeCompositeFlag = 1; // 0 or 1, use 1 to make composite
 var UseChannelNumberCriteria = 0;
 var CriteriaChannelNumberMin = 2;
 var CriteriaChannelNumberMax = 2;
@@ -56,7 +62,7 @@ var ResultsLocation = "UnderOrigFolder"; // "UnderOrigFolder", "InNewLocation"
 var debugMode = 0; // for testing new features eg Stitch
 
 var UseOrigNameAsPrefixFlag = 0; // 0 or 1, use 1 to work in quiet mode
-var SaveIntoPerFileSubFoldersFlag = 1; // 0 - save all images into single folder , =1 save images from each file into one folder 
+var SaveIntoPerFileSubFoldersFlag = 0; //1; // 0 - save all images into single folder , =1 save images from each file into one folder 
 var BatchModeFlag = 1; // 0 or 1, use 1 to work in quiet mode
 
 // ======  End of Parameters Setting, =====================================================
@@ -324,7 +330,6 @@ function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, out
 	suffixStr = "";
 	if (matches(ProcType, "MaxProject"))
 	{
-		//run("Make Composite");
 		run("Z Project...", "projection=[Max Intensity]");		
 		ImToSave = getTitle();
 		suffixStr = "_MaxProject";
@@ -340,6 +345,8 @@ function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, out
 	{
 		waitForUser("Record Stitch...");
 	}
+	Stack.getDimensions(width, height, channels, slices, frames);
+	if (MakeCompositeFlag && channels) run("Make Composite");
 
 	Name = replace(sName, " ", "_");
 	Name = replace(Name, "\\/" , "_");
@@ -429,6 +436,7 @@ function GetPrmsDialog()
 
 	Dialog.addChoice("Which Images to Export:  ", ExportCriteriaOptList, ExportImages);
 
+	Dialog.addCheckbox("Make Composite (if relevant) ?", MakeCompositeFlag);
 	Dialog.addCheckbox("Export only Series Number: ", UseSeriesNumberCriteria);
 	Dialog.addToSameRow(); 
 	Dialog.addNumber("_  ",   CriteriaSeriesNumberMin, 0, 3, "");
@@ -468,6 +476,7 @@ function GetPrmsDialog()
 	ChannelToExtract = Dialog.getNumber();
 	ExportImages = Dialog.getChoice();
 
+	MakeCompositeFlag = Dialog.getCheckbox();
 	UseSeriesNumberCriteria = Dialog.getCheckbox();
 	CriteriaSeriesNumberMin = Dialog.getNumber();
 	CriteriaSeriesNumberMax = Dialog.getNumber();
@@ -504,6 +513,7 @@ function ShowAndSavePrms(SaveFlag, OutFileName)
 	print("ChannelToExtract=",ChannelToExtract);
 	print("ExportImages=", ExportImages);
 
+	print("MakeCompositeFlag=",MakeCompositeFlag);
 	print("UseSeriesNumberCriteria=",UseSeriesNumberCriteria);
 	print("CriteriaSeriesNumberMin=",CriteriaSeriesNumberMin);
 	print("CriteriaSeriesNumberMax=",CriteriaSeriesNumberMax);
