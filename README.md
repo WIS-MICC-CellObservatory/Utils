@@ -62,8 +62,8 @@ Output: for each lif file: Subfolder named XX_Tif with the individual series sav
 	* number of channels 
  	* image size
 	* image name include specified Text 
-    * Processing Type: None/MaxProject/Stitching (not implemented)
-- Output type: Tif / hdf5 / ilastik hdf5 
+    * Processing Type: None/MaxProject/Extract single channel
+- Output type: Tif / hdf5 / ilastik hdf5 / jpg / png
 - Location of output files: UnderOrigFolder / InNewLocation 
   this option usefull especially for working with files stored on network disks such as BioImg storage server (for WIS users)
 - Exported image files are named either by their original image names (ImName) or FileName_SeriesNum_ImName 
