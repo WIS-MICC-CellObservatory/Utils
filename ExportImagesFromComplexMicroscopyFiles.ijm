@@ -346,7 +346,7 @@ function SaveSingleImage(ImToSave, outFolder, file_name_no_ext, sNum, sName, out
 		waitForUser("Record Stitch...");
 	}
 	Stack.getDimensions(width, height, channels, slices, frames);
-	if (MakeCompositeFlag && channels) run("Make Composite");
+	if (MakeCompositeFlag && channels>1) run("Make Composite");
 
 	Name = replace(sName, " ", "_");
 	Name = replace(Name, "\\/" , "_");
